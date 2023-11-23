@@ -1,6 +1,7 @@
 import express, { Response, Application } from 'express';
 import cors from 'cors';
-import { errorResponse } from '../utils/herlpers';
+import { errorResponse } from '../utils/helpers';
+import { StudentRoutes } from '../modules/user.route';
 
 export const app: Application = express();
 
@@ -9,6 +10,8 @@ app.use(express.json());
 app.use(cors());
 
 // router
+app.use('/api/users', StudentRoutes);
+
 app.get('/', (_, response: Response) => {
   response.send('Server is running');
 });
