@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { errorResponse, successResponse } from '../utils/helpers';
-import { TUser, UserValidationSchema } from './user.validation.schema';
+import {
+  OrdersValidationSubSchema,
+  TUser,
+  UserValidationSchema,
+} from './user.validation.schema';
 import { User } from './user.model';
 import { UserService } from './user.service';
 import { bcryptSalt } from '../config/config';
@@ -8,8 +12,13 @@ import bcrypt from 'bcrypt';
 
 async function createUser(req: Request, res: Response) {
   try {
-    let userData = req.body;
-    userData = UserValidationSchema.parse(userData);
+    const userData = req.body;
+    // validating the data
+    const { success } = UserValidationSchema.safeParse(userData);
+
+    if (!success)
+      return res.status(400).json(errorResponse('Data is not in right shape'));
+
     const userResponseData = await UserService.createUserIntoDB(userData);
 
     // removing the password filed form response
@@ -51,16 +60,24 @@ async function updateUser(req: Request, res: Response) {
     const userId = req.params.userId;
     const userInfo: TUser = req.body;
 
+    // validating the data
+    // userInfo = UserValidationSchema.parse(userInfo);
+    const { success } = UserValidationSchema.safeParse(userInfo);
+
+    if (!success)
+      return res
+        .status(400)
+        .json(errorResponse('User data is not in right shape'));
+
     // checking if user exist
     if (!(await User.userExist(parseInt(userId))))
       return res.status(404).json(errorResponse('User not found', 404));
 
     // updating the password
-    if (userInfo.password)
-      userInfo.password = await bcrypt.hash(
-        userInfo.password,
-        parseInt(bcryptSalt),
-      );
+    userInfo.password = await bcrypt.hash(
+      userInfo.password,
+      parseInt(bcryptSalt),
+    );
 
     // removing the userId , bcz we don't want it to be changed
     delete userInfo.userId;
@@ -107,6 +124,13 @@ async function addOrder(req: Request, res: Response) {
   try {
     const orderDetail = req.body;
     const userId = req.params.userId;
+
+    // validating data
+    const { success } = OrdersValidationSubSchema.safeParse(orderDetail);
+    if (!success)
+      return res
+        .status(400)
+        .json(errorResponse('Order data is not in right shape'));
 
     // checking if user exist
     if (!(await User.userExist(parseInt(userId))))

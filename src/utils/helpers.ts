@@ -1,5 +1,5 @@
 export function errorResponse(
-  message: string = 'Something went found',
+  message: string = 'Something went wrong',
   code: number = 400,
 ) {
   return {

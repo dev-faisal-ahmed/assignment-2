@@ -11,7 +11,7 @@ export const AddressValidationSubSchema = z.object({
   country: z.string(),
 });
 
-export const OrdersSubSchema = z.object({
+export const OrdersValidationSubSchema = z.object({
   productName: z.string(),
   price: z.number(),
   quantity: z.number(),
@@ -27,10 +27,10 @@ export const UserValidationSchema = z.object({
   isActive: z.boolean(),
   hobbies: z.string().array(),
   address: AddressValidationSubSchema,
-  orders: OrdersSubSchema.array().optional(),
+  orders: OrdersValidationSubSchema.array().optional(),
 });
 
 export type TUser = z.infer<typeof UserValidationSchema>;
 export type TFullName = z.infer<typeof FullNameValidationSubSchema>;
 export type TAddress = z.infer<typeof AddressValidationSubSchema>;
-export type TOrder = z.infer<typeof OrdersSubSchema>;
+export type TOrder = z.infer<typeof OrdersValidationSubSchema>;
