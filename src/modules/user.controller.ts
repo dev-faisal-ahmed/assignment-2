@@ -152,6 +152,25 @@ async function addOrder(req: Request, res: Response) {
   }
 }
 
+async function getAllOrders(req: Request, res: Response) {
+  try {
+    const userId = req.params.userId;
+
+    // checking if user exist or not
+    if (!(await User.userExist(parseInt(userId))))
+      return res.status(404).json(errorResponse('User not found!', 404));
+
+    const orders = await UserService.getAllOrdersFromDB(parseInt(userId));
+
+    res
+      .status(200)
+      .json(successResponse('Order fetched successfully!', orders));
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(errorResponse());
+  }
+}
+
 export const UserController = {
   createUser,
   getAllUser,
@@ -159,4 +178,5 @@ export const UserController = {
   updateUser,
   deleteUser,
   addOrder,
+  getAllOrders,
 };
