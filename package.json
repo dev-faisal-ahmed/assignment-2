@@ -6,7 +6,8 @@
   "scripts": {
     "tsc": "npx tsc -w",
     "dev": "nodemon ./dist/app/server",
-    "lint": "eslint src --ignore-path .eslintignore --ext .js,.ts"
+    "lint": "eslint src --ignore-path .eslintignore --ext .js,.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",

@@ -1,7 +1,11 @@
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model } from 'mongoose';
 import { TAddress, TFullName, TOrders, TUser } from './user.validation.schema';
 import bcrypt from 'bcrypt';
 import { bcryptSalt } from '../config/config';
+
+interface UserModel extends Model<TUser> {
+  userExist(userId: number): Promise<TUser | null>;
+}
 
 const FullNameSubSchema = new Schema<TFullName>({
   firstName: {
@@ -38,7 +42,7 @@ const OrdersSubSchema = new Schema<TOrders>({
   quantity: { type: Number, required: [true, 'Quantity is required'] },
 });
 
-export const UserSchema = new Schema<TUser>({
+export const UserSchema = new Schema<TUser, UserModel>({
   userId: {
     type: Number,
     required: [true, 'User id is required'],
@@ -80,4 +84,9 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-export const User = model<TUser>('user', UserSchema);
+UserSchema.statics.userExist = async function (userId: number) {
+  const user = await User.findOne({ userId });
+  return user;
+};
+
+export const User = model<TUser, UserModel>('user', UserSchema);

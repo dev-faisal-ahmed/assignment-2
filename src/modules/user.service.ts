@@ -1,7 +1,26 @@
 import { User } from './user.model';
 import { TUser } from './user.validation.schema';
 
-export async function createUserIntoDB(userData: TUser) {
-  const student = await User.create(userData);
-  return student;
+async function createUserIntoDB(userData: TUser) {
+  const user = await User.create(userData);
+  return user;
 }
+
+async function getAllUserFromDB() {
+  const users = await User.find(
+    {},
+    { username: 1, fullName: 1, age: 1, email: 1, address: 1 },
+  );
+  return users;
+}
+
+async function updateUserToDB(userId: number, userData: TUser) {
+  const updateStatus = await User.updateOne({ userId }, userData);
+  return updateStatus;
+}
+
+export const UserService = {
+  createUserIntoDB,
+  getAllUserFromDB,
+  updateUserToDB,
+};
