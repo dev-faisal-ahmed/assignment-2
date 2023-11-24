@@ -85,7 +85,7 @@ UserSchema.pre('save', async function (next) {
 });
 
 UserSchema.statics.userExist = async function (userId: number) {
-  const user = await User.findOne({ userId });
+  const user = await User.findOne({ userId }, { orders: 0 });
   return user;
 };
 
