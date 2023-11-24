@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import { errorResponse, successResponse } from '../utils/helpers';
 import { TUser, UserValidationSchema } from './user.validation.schema';
 import { User } from './user.model';
-import bcrypt from 'bcrypt';
-import { bcryptSalt } from '../config/config';
 import { UserService } from './user.service';
+import { bcryptSalt } from '../config/config';
+import bcrypt from 'bcrypt';
 
 async function createUser(req: Request, res: Response) {
   try {
@@ -28,7 +28,7 @@ async function getAllUser(req: Request, res: Response) {
     res.status(200).json(successResponse('Users fetched successfully!', users));
   } catch (err) {
     console.log(err);
-    res.status(400).json(errorResponse('Something went wrong', 400));
+    res.status(400).json(errorResponse());
   }
 }
 
@@ -42,7 +42,7 @@ async function getSpecificUser(req: Request, res: Response) {
     res.status(200).json(successResponse('User fetched successfully!', user));
   } catch (err) {
     console.log(err);
-    res.status(400).json(errorResponse('Something went wrong', 400));
+    res.status(400).json(errorResponse());
   }
 }
 
@@ -81,7 +81,7 @@ async function updateUser(req: Request, res: Response) {
       .json(successResponse('User updated successfully!', updatedData));
   } catch (err) {
     console.log(err);
-    res.status(400).json(errorResponse('Something went wrong', 400));
+    res.status(400).json(errorResponse());
   }
 }
 
@@ -99,7 +99,32 @@ async function deleteUser(req: Request, res: Response) {
     res.status(200).json(successResponse('User deleted successfully!', null));
   } catch (err) {
     console.log(err);
-    res.status(400).json(errorResponse('Something went wrong', 400));
+    res.status(400).json(errorResponse());
+  }
+}
+
+async function addOrder(req: Request, res: Response) {
+  try {
+    const orderDetail = req.body;
+    const userId = req.params.userId;
+
+    // checking if user exist
+    if (!(await User.userExist(parseInt(userId))))
+      return res.status(404).json(errorResponse('User not found!', 404));
+
+    // creating new orders
+    const addOrderStatus = await UserService.addOrderToDB(
+      parseInt(userId),
+      orderDetail,
+    );
+
+    if (addOrderStatus.modifiedCount < 1)
+      return res.status(400).json(errorResponse('Could not add order', 400));
+
+    res.status(200).json(successResponse('Order created successfully!', null));
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(errorResponse());
   }
 }
 
@@ -109,4 +134,5 @@ export const UserController = {
   getSpecificUser,
   updateUser,
   deleteUser,
+  addOrder,
 };

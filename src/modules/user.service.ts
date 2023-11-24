@@ -1,5 +1,5 @@
 import { User } from './user.model';
-import { TUser } from './user.validation.schema';
+import { TOrder, TUser } from './user.validation.schema';
 
 async function createUserIntoDB(userData: TUser) {
   const user = await User.create(userData);
@@ -26,9 +26,26 @@ async function deleteUserFromDB(userId: number) {
   return deleteStatus;
 }
 
+async function addOrderToDB(userId: number, orderData: TOrder) {
+  const userData = await User.findOne({ userId }, { orders: 1 });
+  if (!userData.orders) {
+    const orders: TOrder[] = [];
+    orders.push(orderData);
+    const addOrderStatus = await User.updateOne({ userId }, { orders: orders });
+    return addOrderStatus;
+  }
+
+  const addOrderStatus = await User.updateOne(
+    { userId },
+    { $push: { orders: orderData } },
+  );
+  return addOrderStatus;
+}
+
 export const UserService = {
   createUserIntoDB,
   getAllUserFromDB,
   updateUserToDB,
   deleteUserFromDB,
+  addOrderToDB,
 };

@@ -1,7 +1,7 @@
 import { Model, Schema, model } from 'mongoose';
-import { TAddress, TFullName, TOrders, TUser } from './user.validation.schema';
-import bcrypt from 'bcrypt';
+import { TAddress, TFullName, TOrder, TUser } from './user.validation.schema';
 import { bcryptSalt } from '../config/config';
+import bcrypt from 'bcrypt';
 
 interface UserModel extends Model<TUser> {
   userExist(userId: number): Promise<TUser | null>;
@@ -36,7 +36,7 @@ const AddressSubSchema = new Schema<TAddress>({
   },
 });
 
-const OrdersSubSchema = new Schema<TOrders>({
+const OrdersSubSchema = new Schema<TOrder>({
   productName: { type: String, required: [true, 'Product name is required'] },
   price: { type: Number, required: [true, 'Price is required'] },
   quantity: { type: Number, required: [true, 'Quantity is required'] },

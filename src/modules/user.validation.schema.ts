@@ -33,4 +33,4 @@ export const UserValidationSchema = z.object({
 export type TUser = z.infer<typeof UserValidationSchema>;
 export type TFullName = z.infer<typeof FullNameValidationSubSchema>;
 export type TAddress = z.infer<typeof AddressValidationSubSchema>;
-export type TOrders = z.infer<typeof OrdersSubSchema>;
+export type TOrder = z.infer<typeof OrdersSubSchema>;

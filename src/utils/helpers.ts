@@ -1,6 +1,6 @@
 export function errorResponse(
   message: string = 'Something went found',
-  code: number,
+  code: number = 400,
 ) {
   return {
     success: false,
