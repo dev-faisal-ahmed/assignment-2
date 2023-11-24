@@ -56,10 +56,15 @@ async function updateUser(req: Request, res: Response) {
       return res.status(404).json(errorResponse('User not found', 404));
 
     // updating the password
-    userInfo.password = await bcrypt.hash(
-      userInfo.password,
-      parseInt(bcryptSalt),
-    );
+    if (userInfo.password)
+      userInfo.password = await bcrypt.hash(
+        userInfo.password,
+        parseInt(bcryptSalt),
+      );
+
+    // removing the userId , bcz we don't want it to be changed
+    delete userInfo.userId;
+
     const updateStatus = await UserService.updateUserToDB(
       parseInt(userId),
       userInfo,
@@ -68,11 +73,30 @@ async function updateUser(req: Request, res: Response) {
     if (updateStatus.modifiedCount < 1)
       return res.status(400).json(errorResponse('Could not update user', 400));
 
-    // removing the password field
-    delete userInfo.password;
+    // getting users all data from the db
+    const updatedData = await User.userExist(parseInt(userId));
+
     res
       .status(200)
-      .json(successResponse('User updated successfully!', userInfo));
+      .json(successResponse('User updated successfully!', updatedData));
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(errorResponse('Something went wrong', 400));
+  }
+}
+
+async function deleteUser(req: Request, res: Response) {
+  try {
+    const userId = req.params.userId;
+    // checking if user exist
+    if (!(await User.userExist(parseInt(userId))))
+      return res.status(404).json(errorResponse('User not found!', 404));
+
+    const deleteStatus = await UserService.deleteUserFromDB(parseInt(userId));
+    if (deleteStatus.deletedCount < 1)
+      return res.status(400).json(errorResponse('Failed to delete user', 400));
+
+    res.status(200).json(successResponse('User deleted successfully!', null));
   } catch (err) {
     console.log(err);
     res.status(400).json(errorResponse('Something went wrong', 400));
@@ -84,4 +108,5 @@ export const UserController = {
   getAllUser,
   getSpecificUser,
   updateUser,
+  deleteUser,
 };

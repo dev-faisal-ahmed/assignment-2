@@ -15,12 +15,20 @@ async function getAllUserFromDB() {
 }
 
 async function updateUserToDB(userId: number, userData: TUser) {
-  const updateStatus = await User.updateOne({ userId }, userData);
+  const updateStatus = await User.updateOne({ userId }, userData, {
+    new: true,
+  });
   return updateStatus;
+}
+
+async function deleteUserFromDB(userId: number) {
+  const deleteStatus = await User.deleteOne({ userId });
+  return deleteStatus;
 }
 
 export const UserService = {
   createUserIntoDB,
   getAllUserFromDB,
   updateUserToDB,
+  deleteUserFromDB,
 };

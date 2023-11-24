@@ -7,5 +7,6 @@ router.post('/', UserController.createUser);
 router.get('/', UserController.getAllUser);
 router.get('/:userId', UserController.getSpecificUser);
 router.put('/:userId', UserController.updateUser);
+router.delete('/:userId', UserController.deleteUser);
 
 export const StudentRoutes = router;
