@@ -1,31 +1,37 @@
 import { z } from 'zod';
 
-export const FullNameValidationSubSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-});
+export const FullNameValidationSubSchema = z.object(
+  {
+    firstName: z.string({ required_error: 'firstName is required' }),
+    lastName: z.string({ required_error: 'lastName is required' }),
+  },
+  { required_error: 'fullName is required' },
+);
 
-export const AddressValidationSubSchema = z.object({
-  street: z.string(),
-  city: z.string(),
-  country: z.string(),
-});
+export const AddressValidationSubSchema = z.object(
+  {
+    street: z.string({ required_error: 'street is required' }),
+    city: z.string({ required_error: 'city is required' }),
+    country: z.string({ required_error: 'country is required' }),
+  },
+  { required_error: 'address is required' },
+);
 
 export const OrdersValidationSubSchema = z.object({
-  productName: z.string(),
-  price: z.number(),
-  quantity: z.number(),
+  productName: z.string({ required_error: 'productName is required' }),
+  price: z.number({ required_error: 'price is required' }),
+  quantity: z.number({ required_error: 'quantity is required' }),
 });
 
 export const UserValidationSchema = z.object({
-  userId: z.number(),
-  username: z.string(),
-  password: z.string(),
+  userId: z.number({ required_error: 'userId is required' }),
+  username: z.string({ required_error: 'userName is required' }),
+  password: z.string({ required_error: 'password is required' }),
   fullName: FullNameValidationSubSchema,
-  age: z.number().gte(1),
-  email: z.string().email(),
-  isActive: z.boolean(),
-  hobbies: z.string().array(),
+  age: z.number({ required_error: 'age is required' }).gte(1),
+  email: z.string({ required_error: 'email is required' }).email(),
+  isActive: z.boolean({ required_error: 'isActive is required' }),
+  hobbies: z.string({ required_error: 'hobbies are required' }).array(),
   address: AddressValidationSubSchema,
   orders: OrdersValidationSubSchema.array().optional(),
 });

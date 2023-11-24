@@ -1,14 +1,14 @@
+import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { errorResponse, successResponse } from '../utils/helpers';
+import { User } from './user.model';
+import { UserService } from './user.service';
+import { bcryptSalt } from '../config/config';
 import {
   OrdersValidationSubSchema,
   TUser,
   UserValidationSchema,
 } from './user.validation.schema';
-import { User } from './user.model';
-import { UserService } from './user.service';
-import { bcryptSalt } from '../config/config';
-import bcrypt from 'bcrypt';
 
 async function createUser(req: Request, res: Response) {
   try {
@@ -43,8 +43,8 @@ async function getAllUser(req: Request, res: Response) {
 
 async function getSpecificUser(req: Request, res: Response) {
   try {
-    const userId = req.params.userId;
-    const user = await User.userExist(parseInt(userId));
+    const userId = parseInt(req.params.userId);
+    const user = await User.userExist(userId);
 
     if (!user)
       return res.status(404).json(errorResponse('User not found', 404));
@@ -57,11 +57,10 @@ async function getSpecificUser(req: Request, res: Response) {
 
 async function updateUser(req: Request, res: Response) {
   try {
-    const userId = req.params.userId;
+    const userId = parseInt(req.params.userId);
     const userInfo: TUser = req.body;
 
     // validating the data
-    // userInfo = UserValidationSchema.parse(userInfo);
     const { success } = UserValidationSchema.safeParse(userInfo);
 
     if (!success)
@@ -70,7 +69,7 @@ async function updateUser(req: Request, res: Response) {
         .json(errorResponse('User data is not in right shape'));
 
     // checking if user exist
-    if (!(await User.userExist(parseInt(userId))))
+    if (!(await User.userExist(userId)))
       return res.status(404).json(errorResponse('User not found', 404));
 
     // updating the password
@@ -82,16 +81,13 @@ async function updateUser(req: Request, res: Response) {
     // removing the userId , bcz we don't want it to be changed
     delete userInfo.userId;
 
-    const updateStatus = await UserService.updateUserToDB(
-      parseInt(userId),
-      userInfo,
-    );
+    const updateStatus = await UserService.updateUserToDB(userId, userInfo);
 
     if (updateStatus.modifiedCount < 1)
       return res.status(400).json(errorResponse('Could not update user', 400));
 
     // getting users all data from the db
-    const updatedData = await User.userExist(parseInt(userId));
+    const updatedData = await User.userExist(userId);
 
     res
       .status(200)
@@ -104,12 +100,12 @@ async function updateUser(req: Request, res: Response) {
 
 async function deleteUser(req: Request, res: Response) {
   try {
-    const userId = req.params.userId;
+    const userId = parseInt(req.params.userId);
     // checking if user exist
-    if (!(await User.userExist(parseInt(userId))))
+    if (!(await User.userExist(userId)))
       return res.status(404).json(errorResponse('User not found!', 404));
 
-    const deleteStatus = await UserService.deleteUserFromDB(parseInt(userId));
+    const deleteStatus = await UserService.deleteUserFromDB(userId);
     if (deleteStatus.deletedCount < 1)
       return res.status(400).json(errorResponse('Failed to delete user', 400));
 
@@ -123,7 +119,7 @@ async function deleteUser(req: Request, res: Response) {
 async function addOrder(req: Request, res: Response) {
   try {
     const orderDetail = req.body;
-    const userId = req.params.userId;
+    const userId = parseInt(req.params.userId);
 
     // validating data
     const { success } = OrdersValidationSubSchema.safeParse(orderDetail);
@@ -133,14 +129,11 @@ async function addOrder(req: Request, res: Response) {
         .json(errorResponse('Order data is not in right shape'));
 
     // checking if user exist
-    if (!(await User.userExist(parseInt(userId))))
+    if (!(await User.userExist(userId)))
       return res.status(404).json(errorResponse('User not found!', 404));
 
     // creating new orders
-    const addOrderStatus = await UserService.addOrderToDB(
-      parseInt(userId),
-      orderDetail,
-    );
+    const addOrderStatus = await UserService.addOrderToDB(userId, orderDetail);
 
     if (addOrderStatus.modifiedCount < 1)
       return res.status(400).json(errorResponse('Could not add order', 400));
@@ -154,13 +147,13 @@ async function addOrder(req: Request, res: Response) {
 
 async function getAllOrders(req: Request, res: Response) {
   try {
-    const userId = req.params.userId;
+    const userId = parseInt(req.params.userId);
 
     // checking if user exist or not
-    if (!(await User.userExist(parseInt(userId))))
+    if (!(await User.userExist(userId)))
       return res.status(404).json(errorResponse('User not found!', 404));
 
-    const orders = await UserService.getAllOrdersFromDB(parseInt(userId));
+    const orders = await UserService.getAllOrdersFromDB(userId);
 
     res
       .status(200)
